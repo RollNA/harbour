@@ -30,7 +30,7 @@ var reqCnt = &Metric{
 	Name:        "requests_total",
 	Description: "How many HTTP requests processed, partitioned by status code and HTTP method.",
 	Type:        "counter_vec",
-	Args:        []string{"code", "url", "err", "host", "env", "method"},
+	Args:        []string{"code", "url", "err", "host", "method"},
 }
 
 var reqDur = &Metric{
@@ -38,7 +38,7 @@ var reqDur = &Metric{
 	Name:        "request_duration_seconds",
 	Description: "The HTTP request latencies in seconds.",
 	Type:        "histogram_vec",
-	Args:        []string{"code", "url", "err", "host", "env", "method"},
+	Args:        []string{"code", "url", "err", "host", "method"},
 }
 
 var resSz = &Metric{
