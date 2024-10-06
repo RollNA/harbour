@@ -9,9 +9,13 @@ import (
 
 type ParseJWT func(token string) (map[string]any, bool)
 
-func ParseJWTToken(parse ParseJWT) gin.HandlerFunc {
+func ParseJWTToken(key string, parse ParseJWT) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		tokenString := ctx.GetHeader("Authorization")
+		if len(key) == 0 {
+			key = "Authorization"
+		}
+		tokenString := ctx.GetHeader(key)
+
 		if strings.Contains(tokenString, "Bearer ") {
 			tokenString = strings.Split(tokenString, "Bearer ")[1]
 		}
@@ -26,9 +30,12 @@ func ParseJWTToken(parse ParseJWT) gin.HandlerFunc {
 	}
 }
 
-func ValidateJWTToken(parse ParseJWT) gin.HandlerFunc {
+func ValidateJWTToken(key string, parse ParseJWT) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		tokenString := ctx.GetHeader("Authorization")
+		if len(key) == 0 {
+			key = "Authorization"
+		}
+		tokenString := ctx.GetHeader(key)
 		if strings.Contains(tokenString, "Bearer ") {
 			tokenString = strings.Split(tokenString, "Bearer ")[1]
 		}
