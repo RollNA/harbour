@@ -35,6 +35,21 @@ func Get(ctx context.Context, url string, params map[string]any, opts ...ReqPara
 	return do(ctx, req)
 }
 
+// Post 返回结果json化，并只取了result或data
+func Post(ctx context.Context, url string, params map[string]any, opts ...ReqParamsOption) *ResponseDto {
+	req := &requestParamsDto{
+		Path:    url,
+		method:  methodPost,
+		Params:  params,
+		timeout: defaultTimeout,
+	}
+	for _, opt := range opts {
+		opt(req)
+	}
+
+	return do(ctx, req)
+}
+
 func Delete(ctx context.Context, url string, params map[string]any, opts ...ReqParamsOption) *ResponseDto {
 	req := &requestParamsDto{
 		Path:    url,
