@@ -2,10 +2,13 @@ package tracer
 
 import (
 	"context"
+	"crypto/tls"
 	"log"
 
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/trace"
+	"google.golang.org/grpc/credentials"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -15,10 +18,18 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
+type TransportProtocolType string
+
+const (
+	TransportProtocolHTTP TransportProtocolType = "HTTP"
+	TransportProtocolGRPC TransportProtocolType = "GRPC"
+)
+
 type TraceConf struct {
-	ServiceName  string
-	CollectorURL string
-	Insecure     bool
+	ServiceName       string                `mapstructure:"serviceName"`
+	CollectorURL      string                `mapstructure:"collectorURL"`
+	Insecure          bool                  `mapstructure:"insecure"`
+	TransportProtocol TransportProtocolType `mapstructure:"transportProtocol"`
 }
 
 func InitTracer(conf TraceConf) func(context.Context) error {
@@ -33,21 +44,35 @@ func InitTracer(conf TraceConf) func(context.Context) error {
 		}
 	}()
 
-	log.Print(serviceName + collectorURL)
-	log.Print("t?", insecure)
+	var exporter *otlptrace.Exporter
+	var err error
+	switch conf.TransportProtocol {
+	case TransportProtocolHTTP:
+		secureOption := otlptracehttp.WithTLSClientConfig(&tls.Config{})
+		if insecure {
+			secureOption = otlptracehttp.WithInsecure()
+		}
+		exporter, err = otlptrace.New(
+			context.Background(),
+			otlptracehttp.NewClient(
+				otlptracehttp.WithEndpointURL(collectorURL),
+				secureOption,
+			),
+		)
+	default:
+		secureOption := otlptracegrpc.WithTLSCredentials(credentials.NewClientTLSFromCert(nil, ""))
+		if insecure {
+			secureOption = otlptracegrpc.WithInsecure()
+		}
+		exporter, err = otlptrace.New(
+			context.Background(),
+			otlptracegrpc.NewClient(
+				secureOption,
+				otlptracegrpc.WithEndpoint(collectorURL),
+			),
+		)
 
-	exporter, err := otlptrace.New(
-		context.Background(),
-		otlptracehttp.NewClient(
-			otlptracehttp.WithEndpointURL(collectorURL),
-			otlptracehttp.WithInsecure(),
-		),
-		//otlptracegrpc.NewClient(
-		//	secureOption,
-		//	otlptracegrpc.WithEndpoint(collectorURL),
-		//),
-	)
-
+	}
 	if err != nil {
 		log.Fatal(err)
 	}

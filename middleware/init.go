@@ -28,7 +28,7 @@ func InitMiddleware(r *gin.Engine, conf Conf) {
 	if conf.UsePprof {
 		pprof.Register(r)
 	}
-	p := NewPrometheus("ac")
+	p := NewPrometheus("")
 	p.Use(r)
 	r.Use(otelgin.Middleware(conf.ApplicationName))
 }

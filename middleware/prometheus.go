@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -17,8 +16,6 @@ import (
 	"go.uber.org/zap"
 )
 
-const PromServiceCodeKey = "err"
-
 var defaultMetricPath = "/metrics"
 
 // Standard default metrics
@@ -30,7 +27,7 @@ var reqCnt = &Metric{
 	Name:        "requests_total",
 	Description: "How many HTTP requests processed, partitioned by status code and HTTP method.",
 	Type:        "counter_vec",
-	Args:        []string{"code", "url", "err", "host", "method"},
+	Args:        []string{"code", "url", "handler", "host", "method"},
 }
 
 var reqDur = &Metric{
@@ -38,7 +35,7 @@ var reqDur = &Metric{
 	Name:        "request_duration_seconds",
 	Description: "The HTTP request latencies in seconds.",
 	Type:        "histogram_vec",
-	Args:        []string{"code", "url", "err", "host", "method"},
+	Args:        []string{"code", "url", "handler", "host", "method"},
 }
 
 var resSz = &Metric{
@@ -382,13 +379,9 @@ func (p *Prometheus) HandlerFunc() gin.HandlerFunc {
 			}
 			url = u.(string)
 		}
-		serviceCode := "-404" // 不存在的code
-		if v, ok := c.Get(PromServiceCodeKey); ok {
-			serviceCode = fmt.Sprintf("%v", v)
-		}
-		p.reqDur.WithLabelValues(status, url, serviceCode, c.Request.Host,
+		p.reqDur.WithLabelValues(status, url, c.HandlerName(), c.Request.Host,
 			c.Request.Method).Observe(elapsed)
-		p.reqCnt.WithLabelValues(status, url, serviceCode, c.Request.Host,
+		p.reqCnt.WithLabelValues(status, url, c.HandlerName(), c.Request.Host,
 			c.Request.Method).Inc()
 		p.reqSz.Observe(float64(reqSz))
 		p.resSz.Observe(resSz)
