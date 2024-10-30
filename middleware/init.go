@@ -19,10 +19,10 @@ type Conf struct {
 func InitMiddleware(r *gin.Engine, conf Conf) {
 	r.Use(Cors())
 	//r.Use(gzip.Gzip(gzip.DefaultCompression))
-	// 日志处理
-	r.Use(LoggerToFile())
 	// Set X-Request-Id header
 	r.Use(RequestId())
+	// 日志处理
+	r.Use(LoggerToFile())
 	r.Use(panicApi)
 
 	if conf.UsePprof {
