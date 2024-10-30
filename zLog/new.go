@@ -3,6 +3,7 @@ package zLog
 import (
 	"context"
 	"os"
+	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -52,7 +53,7 @@ func New(opts ...Option) (*zap.Logger, error) {
 		StacktraceKey:  "stacktrace",
 		LineEnding:     zapcore.DefaultLineEnding,
 		EncodeLevel:    zapcore.CapitalLevelEncoder,
-		EncodeTime:     zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05.000000"),
+		EncodeTime:     zapcore.TimeEncoderOfLayout(time.RFC3339),
 		EncodeDuration: zapcore.MillisDurationEncoder,
 		EncodeCaller:   zapcore.FullCallerEncoder,
 	}
