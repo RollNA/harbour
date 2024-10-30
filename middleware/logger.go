@@ -88,7 +88,7 @@ func LoggerToFile() gin.HandlerFunc {
 		zLog.TraceInfo(
 			c.Request.Context(),
 			"gin request",
-			zap.String("start", startTime.Format("2006-01-02 15:04:05.9999")),
+			zap.String("start", startTime.Format(time.RFC3339)),
 			zap.Any("statusCode", statusCode),
 			zap.Any("cost", latencyTime),
 			zap.String("clientIP", clientIP),

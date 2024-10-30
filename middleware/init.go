@@ -21,16 +21,15 @@ func InitMiddleware(r *gin.Engine, conf Conf) {
 	//r.Use(gzip.Gzip(gzip.DefaultCompression))
 	// Set X-Request-Id header
 	r.Use(RequestId())
-	// 日志处理
-	r.Use(LoggerToFile())
-	r.Use(panicApi)
-
 	if conf.UsePprof {
 		pprof.Register(r)
 	}
 	p := NewPrometheus("")
 	p.Use(r)
 	r.Use(otelgin.Middleware(conf.ApplicationName))
+	// 日志处理
+	r.Use(LoggerToFile())
+	r.Use(panicApi)
 }
 
 func panicApi(c *gin.Context) {
