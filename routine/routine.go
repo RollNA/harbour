@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/quincy0/harbour/routine/rescue"
+	"github.com/RollNA/harbour/routine/rescue"
 	"go.opentelemetry.io/otel/trace"
 )
 

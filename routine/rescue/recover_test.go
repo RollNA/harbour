@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/quincy0/harbour/zLog"
+	"github.com/RollNA/harbour/zLog"
 
 	"github.com/stretchr/testify/assert"
 )
